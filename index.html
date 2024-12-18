@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Text Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background-color: black;
+        }
+        header {
+            width: 100%;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: flex-start;
+            padding: 4px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .menu {
+            position: relative;
+        }
+        .menu button {
+            padding: 5px 10px;
+            font-size: 10px;
+            background: none;
+            color: wheat;
+            border: none;
+            cursor: pointer;
+        }
+        .menu button:hover {
+            background-color: rgb(10, 30, 30);
+        }
+        .menu-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            border: 1px solid wheat;
+            display: none;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .menu-dropdown button {
+            padding: 5px 10px;
+            font-size: 10px;
+            text-align: left;
+            width: 100%;
+            background: black;
+            color: wheat;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+        }
+        .menu-dropdown button:hover {
+            background-color: rgb(10, 30, 30);
+        }
+        #editor {
+            flex: 1;
+            margin-left: 2px;
+            margin-right: 2px;
+            margin-bottom: 2px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: rgb(10, 30, 30);
+            color: wheat;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu">
+            <button onclick="toggleMenu()">☰ Menu</button>
+            <div id="menuDropdown" class="menu-dropdown">
+                <button onclick="saveText()">Save</button>
+            </div>
+        </div>
+    </header>
+    <div id="editor" contenteditable="true"></div>
+
+    <script>
+        const editor = document.getElementById('editor');
+
+        // Toggle the dropdown menu
+        function toggleMenu() {
+            const menuDropdown = document.getElementById('menuDropdown');
+            menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Save the content as a text file
+        function saveText() {
+            const text = document.getElementById('editor').innerHTML;
+            const blob = new Blob([text], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'note.html';
+            link.click();
+            
+            // Close the menu after saving
+            document.getElementById('menuDropdown').style.display = 'none';
+        }
+
+        // Add bold functionality with Ctrl+B
+        editor.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'b') {
+                event.preventDefault();
+                document.execCommand('bold');
+            }
+        });
+
+        // Enable Tab key to insert 4 spaces
+        editor.addEventListener('keydown', function(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+
+                const tabNode = document.createTextNode('    ');
+                range.insertNode(tabNode);
+
+                range.setStartAfter(tabNode);
+                range.setEndAfter(tabNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.menu');
+            if (!menu.contains(event.target)) {
+                document.getElementById('menuDropdown').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
